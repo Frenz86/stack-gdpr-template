@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 import asyncio
 from contextlib import asynccontextmanager
+from plugins.plugin_sandbox import PluginSandbox
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +104,7 @@ class SecurePluginManager:
         self.plugin_status: Dict[str, PluginStatus] = {}
         self.manifests: Dict[str, PluginManifest] = {}
         self.security_validator = PluginSecurityValidator()
+        self.sandbox = PluginSandbox()
     
     async def load_enabled_plugins(self, plugin_names: List[str]):
         """🔒 Load plugin con security validation"""
@@ -187,6 +189,13 @@ class SecurePluginManager:
         
         # ✅ 1. Checksum verification del codice
         await self._verify_plugin_checksum(plugin_name, manifest.checksum)
+        
+        # ✅ 1b. Static sandbox validation
+        plugin_path = Path(f"plugins/{plugin_name}/plugin.py")
+        if plugin_path.exists():
+            with open(plugin_path, "r", encoding="utf-8") as f:
+                plugin_code = f.read()
+            self.sandbox.validate_plugin_code(plugin_code)
         
         # ✅ 2. Dynamic import con error handling
         try:

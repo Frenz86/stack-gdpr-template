@@ -57,7 +57,11 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting STAKC GDPR Template...")
     logger.info(f"📋 Project: {settings.PROJECT_NAME}")
     logger.info(f"🏷️  Template: {settings.PROJECT_TEMPLATE}")
-    logger.info(f"🔌 Enabled Plugins: {settings.ENABLED_PLUGINS}")
+    # Aggiungi realtime_plugin se non già presente
+    enabled_plugins = list(settings.ENABLED_PLUGINS)
+    if "realtime_plugin" not in enabled_plugins:
+        enabled_plugins.append("realtime_plugin")
+    logger.info(f"🔌 Enabled Plugins: {enabled_plugins}")
     logger.info(f"🌐 Environment: {settings.ENVIRONMENT}")
     
     # Create database tables
@@ -73,7 +77,7 @@ async def lifespan(app: FastAPI):
     # Initialize and load plugins
     try:
         plugin_manager = SecurePluginManager(app)
-        await plugin_manager.load_enabled_plugins(settings.ENABLED_PLUGINS)
+        await plugin_manager.load_enabled_plugins(enabled_plugins)
         # Store plugin manager in app state
         app.state.plugin_manager = plugin_manager
         logger.info("✅ Secure plugin system initialized successfully")
