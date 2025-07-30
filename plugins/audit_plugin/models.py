@@ -1,10 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.orm import declarative_base
+from core.database.base import Base, BaseModel, PluginRegistry
 import datetime
 
-Base = declarative_base()
 
-class AuditLog(Base):
+class AuditLog(BaseModel):
     __tablename__ = "audit_logs"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True, nullable=True)

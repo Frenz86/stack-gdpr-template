@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey
-from sqlalchemy.orm import declarative_base
 import datetime
+from core.database.base import Base, BaseModel, PluginRegistry
 
-Base = declarative_base()
-
-class Consent(Base):
+class Consent(BaseModel):
     __tablename__ = "consents"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
@@ -13,7 +11,7 @@ class Consent(Base):
     accepted_at = Column(DateTime, default=datetime.datetime.utcnow)
     revoked_at = Column(DateTime, nullable=True)
 
-class PolicyVersion(Base):
+class PolicyVersion(BaseModel):
     __tablename__ = "policy_versions"
     id = Column(Integer, primary_key=True, index=True)
     policy_type = Column(String, index=True)  # privacy, cookie
@@ -21,7 +19,7 @@ class PolicyVersion(Base):
     published_at = Column(DateTime, default=datetime.datetime.utcnow)
     url = Column(String)
 
-class AdminActionLog(Base):
+class AdminActionLog(BaseModel):
     __tablename__ = "admin_action_logs"
     id = Column(Integer, primary_key=True, index=True)
     admin_id = Column(Integer, index=True)

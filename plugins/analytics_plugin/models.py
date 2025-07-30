@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.orm import declarative_base
 import datetime
+from core.database.base import Base, BaseModel, PluginRegistry
 
-Base = declarative_base()
-
-class AnalyticsEvent(Base):
+class AnalyticsEvent(BaseModel):
     __tablename__ = "analytics_events"
     id = Column(Integer, primary_key=True, index=True)
     event_type = Column(String, index=True)

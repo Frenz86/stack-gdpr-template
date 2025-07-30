@@ -20,7 +20,7 @@ from pathlib import Path
 from core.config import settings
 from core.database import engine, Base
 from core.dependencies import get_current_user
-from plugins.plugin_manager import PluginManager
+from plugins.secure_plugin_manager import SecurePluginManager
 
 # Business logic imports (template-specific)
 from core.api import router as core_router
