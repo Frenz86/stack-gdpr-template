@@ -24,9 +24,9 @@ from plugins.secure_plugin_manager import SecurePluginManager
 
 # Business logic imports (template-specific)
 from core.api import router as core_router
-# Import plugin routers
 from plugins.analytics_plugin.api import router as analytics_router
 from plugins.audit_plugin.api import router as audit_router
+from core.legal_compliance import router as legal_router
 from plugins.security_plugin.middleware.rate_limiting import RateLimitMiddleware
 from plugins.security_plugin.middleware.bot_detection import BotDetectionMiddleware
 from plugins.security_plugin.middleware.ip_blocking import IPBlockingMiddleware
@@ -72,15 +72,13 @@ async def lifespan(app: FastAPI):
     
     # Initialize and load plugins
     try:
-        plugin_manager = PluginManager(app)
-        await plugin_manager.load_enabled_plugins()
-        
+        plugin_manager = SecurePluginManager(app)
+        await plugin_manager.load_enabled_plugins(settings.ENABLED_PLUGINS)
         # Store plugin manager in app state
         app.state.plugin_manager = plugin_manager
-        
-        logger.info("✅ Plugin system initialized successfully")
+        logger.info("✅ Secure plugin system initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Plugin system initialization failed: {e}")
+        logger.error(f"❌ Secure plugin system initialization failed: {e}")
         raise
     
     logger.info("🎉 Application startup completed successfully")
@@ -127,21 +125,21 @@ app = FastAPI(
     ---
     *Powered by STAKC GDPR Template v2.0.0
     """,
-    version=settings.PROJECT_VERSION,
+    version=settings.VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     middleware=[
         # CORS middleware
         CORSMiddleware(
-            allow_origins=settings.CORS_ORIGINS if settings.ENVIRONMENT != "production" else [],
+            allow_origins=getattr(settings, "CORS_ORIGINS", ["http://localhost:3000"]) if settings.ENVIRONMENT != "production" else [],
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
         ),
         # Trusted host middleware
         TrustedHostMiddleware(
-            allowed_hosts=settings.TRUSTED_HOSTS
+            allowed_hosts=getattr(settings, "TRUSTED_HOSTS", ["localhost", "127.0.0.1"])
         )
     ],
     lifespan=lifespan
@@ -153,10 +151,10 @@ app.add_middleware(BotDetectionMiddleware)
 app.add_middleware(IPBlockingMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 
-# Include routers
 app.include_router(core_router)
 app.include_router(analytics_router)
 app.include_router(audit_router)
+app.include_router(legal_router)
 
 # Dependency
 async def get_plugin_manager(request: Request):
@@ -165,7 +163,7 @@ async def get_plugin_manager(request: Request):
 # Health check endpoint
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": settings.PROJECT_VERSION}
+    return {"status": "healthy", "version": settings.VERSION}
 
 # Logging middleware
 @app.middleware("http")

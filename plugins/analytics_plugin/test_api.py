@@ -35,3 +35,8 @@ def test_stats():
     response = client.get("/analytics/stats")
     assert response.status_code == 200
     assert "total_events" in response.json()
+
+def test_analytics_health():
+    response = client.get("/analytics/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok", "plugin": "analytics"}
