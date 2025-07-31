@@ -50,7 +50,7 @@ services:
       -c log_statement=all
       -c log_destination=stderr
       -c logging_collector=on
-      -c log_directory=/var/log/postgresql
+      -c log_directory=/var/lib/postgresql/data/logs
       -c log_filename=postgresql-%Y-%m-%d.log
       -c log_rotation_age=1d
       -c log_rotation_size=100MB

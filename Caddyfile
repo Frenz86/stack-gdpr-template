@@ -1,0 +1,25 @@
+# Caddyfile Template per stack GDPR-compliant
+{
+    email admin@example.com
+    acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+:80, :443 {
+    encode gzip
+    log {
+        output file /var/log/caddy/access.log
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "geolocation=(), microphone=()"
+    }
+    reverse_proxy /api/* api:8000
+    root * /srv/frontend
+    file_server
+    handle_errors {
+        respond "{http.error.status_code} {http.error.status_text}" 500
+    }
+}

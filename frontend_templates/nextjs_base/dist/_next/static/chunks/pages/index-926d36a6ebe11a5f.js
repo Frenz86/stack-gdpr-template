@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[332],{2936:(n,e,_)=>{(window.__NEXT_P=window.__NEXT_P||[]).push(["/",function(){return _(9287)}])},9287:(n,e,_)=>{"use strict";_.r(e),_.d(e,{default:()=>r});var u=_(7876);function r(){return(0,u.jsx)("div",{children:"Benvenuto nella dashboard GDPR!888"})}}},n=>{n.O(0,[636,593,792],()=>n(n.s=2936)),_N_E=n.O()}]);

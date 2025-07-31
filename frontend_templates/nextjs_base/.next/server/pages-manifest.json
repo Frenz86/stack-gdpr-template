@@ -1,0 +1,11 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/gdpr-dashboard": "pages/gdpr-dashboard.html",
+  "/": "pages/index.html",
+  "/plugins/gdpr/cookie-policy": "pages/plugins/gdpr/cookie-policy.html",
+  "/plugins/gdpr/privacy-dashboard": "pages/plugins/gdpr/privacy-dashboard.html",
+  "/plugins/security/security-dashboard": "pages/plugins/security/security-dashboard.html",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}
