@@ -1,3 +1,27 @@
+# docker-compose.yml (Main Compose file)
+
+This file defines the main services, volumes, and networks for the GDPR-compliant stack. It is compatible with both Docker Compose and Swarm (with environment variable secrets).
+
+## Services
+- **api**: FastAPI backend, plugin system, read-only filesystem, tmpfs for logs
+- **postgres**: PostgreSQL 15, GDPR-compliant logging, automatic backup, custom init script
+- **redis**: Redis 7, persistent data, memory limits, LRU policy
+- **caddy**: Caddy reverse proxy, frontend static files, HTTPS support
+- **worker**: Celery background tasks, plugin support
+- **scheduler**: Celery Beat scheduled tasks
+
+## Volumes
+- Persistent data for PostgreSQL, Redis, Caddy, GDPR exports, audit logs
+
+## Networks
+- Isolated bridge network for all services
+
+## Development Extensions
+- Override with `docker-compose.override.yml` for hot-reload, debug, and local mounts
+
+---
+
+```
 version: '3.8'
 
 services:
@@ -158,3 +182,4 @@ x-development: &development
   volumes:
     - .:/app
   command: uvicorn core.main:app --host 0.0.0.0 --port 8000 --reload
+```

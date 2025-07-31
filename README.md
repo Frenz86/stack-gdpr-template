@@ -39,7 +39,7 @@ cp .env.example .env
 ### 3. Avvia i servizi con Docker Compose
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### 4. Crea un nuovo progetto (opzionale)

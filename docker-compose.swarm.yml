@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 🚀 Backend API
   api:
     build:
       context: .
@@ -9,27 +8,45 @@ services:
     ports:
       - "${API_PORT:-8000}:8000"
     environment:
-      # 🚨 SECURITY: Usa variabili d'ambiente per compatibilità Compose/Swarm
-      - DATABASE_URL=${DATABASE_URL}
-      - SECRET_KEY=${SECRET_KEY}
-      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
+      - DATABASE_URL_FILE=/run/secrets/db_url
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - GDPR_ENCRYPTION_KEY_FILE=/run/secrets/gdpr_key
       - PROJECT_NAME=${PROJECT_NAME:-STAKC Template}
       - PROJECT_TEMPLATE=${PROJECT_TEMPLATE:-base}
       - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit,data_breach}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     volumes:
       - ./core:/app/core
       - ./plugins:/app/plugins
       - ./project_templates:/app/project_templates
       - gdpr_exports:/app/exports
       - audit_logs:/app/logs
-    # 🚨 SECURITY: Read-only filesystem
     read_only: true
     tmpfs:
       - /tmp
       - /app/logs
+    secrets:
+      - db_url
+      - secret_key
+      - gdpr_key
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        max_replicas_per_node: 1
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - stakc_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  # 🐘 PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     environment:
@@ -44,7 +61,6 @@ services:
     networks:
       - stakc_network
     restart: unless-stopped
-    # GDPR: Backup automatico per compliance
     command: >
       postgres
       -c log_statement=all
@@ -54,8 +70,11 @@ services:
       -c log_filename=postgresql-%Y-%m-%d.log
       -c log_rotation_age=1d
       -c log_rotation_size=100MB
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
 
-  # 📦 Redis Cache & Sessions
   redis:
     image: redis:7-alpine
     ports:
@@ -66,8 +85,11 @@ services:
     networks:
       - stakc_network
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
 
-  # 🌐 Caddy Reverse Proxy
   caddy:
     image: caddy:2-alpine
     ports:
@@ -84,8 +106,11 @@ services:
     networks:
       - stakc_network
     restart: unless-stopped
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
-  # 📊 Celery Worker (Background Tasks)
   worker:
     build:
       context: .
@@ -94,22 +119,28 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secure123}@postgres:5432/${POSTGRES_DB:-stakc_app}
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=${SECRET_KEY:-your-super-secret-key-change-in-production}
-      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY:-gdpr-encryption-key-32-chars-min}
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - GDPR_ENCRYPTION_KEY_FILE=/run/secrets/gdpr_key
       - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit,data_breach}
     volumes:
       - ./core:/app/core
       - ./plugins:/app/plugins
       - gdpr_exports:/app/exports
       - audit_logs:/app/logs
+    secrets:
+      - secret_key
+      - gdpr_key
     depends_on:
       - postgres
       - redis
     networks:
       - stakc_network
     restart: unless-stopped
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
-  # ⏰ Celery Beat (Scheduled Tasks)
   scheduler:
     build:
       context: .
@@ -118,18 +149,33 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secure123}@postgres:5432/${POSTGRES_DB:-stakc_app}
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=${SECRET_KEY:-your-super-secret-key-change-in-production}
-      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY:-gdpr-encryption-key-32-chars-min}
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - GDPR_ENCRYPTION_KEY_FILE=/run/secrets/gdpr_key
       - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit,data_breach}
     volumes:
       - ./core:/app/core
       - ./plugins:/app/plugins
+    secrets:
+      - secret_key
+      - gdpr_key
     depends_on:
       - postgres
       - redis
     networks:
       - stakc_network
     restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+secrets:
+  db_url:
+    file: .secrets/db_url
+  secret_key:
+    file: .secrets/secret_key
+  gdpr_key:
+    file: .secrets/gdpr_key
 
 volumes:
   postgres_data:
@@ -140,7 +186,6 @@ volumes:
     driver: local
   caddy_config:
     driver: local
-  # GDPR Compliance Volumes
   gdpr_exports:
     driver: local
   audit_logs:
@@ -149,12 +194,3 @@ volumes:
 networks:
   stakc_network:
     driver: bridge
-
-# 🔧 Development Extensions (override in docker-compose.override.yml)
-x-development: &development
-  environment:
-    - DEBUG=true
-    - LOG_LEVEL=DEBUG
-  volumes:
-    - .:/app
-  command: uvicorn core.main:app --host 0.0.0.0 --port 8000 --reload

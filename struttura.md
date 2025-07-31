@@ -407,7 +407,7 @@ stack-gdpr-template/                    # Template riutilizzabile per 100 proget
 # ✅ Frontend Next.js con componenti GDPR
 # ✅ Database migrations applicate
 # ✅ Docker setup completo
-# 🚀 Pronto per: cd my-blog && docker-compose up
+# 🚀 Pronto per: cd my-blog && docker compose up
 ```
 
 ### **2. Plugin Configuration:**

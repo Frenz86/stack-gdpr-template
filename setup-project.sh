@@ -156,6 +156,9 @@ rm -rf examples/
 rm -rf docs/
 rm -f setup-project.sh
 
+# Copy Caddyfile template
+cp Caddyfile.template Caddyfile
+
 # Generate .env file
 echo -e "${BLUE}⚙️  Generazione configurazione...${NC}"
 cat > .env << EOF
@@ -310,6 +313,7 @@ for plugin in "${PLUGIN_ARRAY[@]}"; do
 done
 
 # Initialize database
+mkdir -p scripts/database
 echo -e "${BLUE}🗄️  Preparazione database...${NC}"
 cat > scripts/database/init.sql << EOF
 -- STAKC GDPR Template Database Initialization
@@ -372,10 +376,10 @@ Progetto generato da STAKC GDPR Template v2.0.0
 
 \`\`\`bash
 # Avvia il progetto
-docker-compose up -d
+docker compose up -d
 
 # Controlla i logs
-docker-compose logs -f api
+docker compose logs -f api
 
 # Accedi all'applicazione
 open http://$DOMAIN
@@ -439,10 +443,10 @@ SMTP_PASSWORD=smtp-password
 
 \`\`\`bash
 # Production
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 # Staging  
-docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
 \`\`\`
 
 ## 📞 Supporto
@@ -473,7 +477,7 @@ echo ""
 echo -e "${BLUE}📁 Directory: ${GREEN}$PROJECT_DIR${NC}"
 echo -e "${BLUE}🚀 Per avviare:${NC}"
 echo -e "   ${YELLOW}cd $PROJECT_NAME${NC}"
-echo -e "   ${YELLOW}docker-compose up -d${NC}"
+echo -e "   ${YELLOW}docker compose up -d${NC}"
 echo ""
 echo -e "${BLUE}🌐 URL di accesso:${NC}"
 echo -e "   ${GREEN}• Applicazione: http://$DOMAIN${NC}"

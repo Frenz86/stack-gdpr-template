@@ -41,18 +41,18 @@ cd ../..
 
 ```bash
 cd demo-blog
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 6. Verifica servizi
 
 - Controlla che tutti i container siano attivi:
   ```bash
-  docker-compose ps
+  docker compose ps
   ```
 - Controlla i log strutturati:
   ```bash
-  docker-compose logs -f api
+  docker compose logs -f api
   ```
 - Verifica healthcheck robusto:
   - http://localhost/health
@@ -109,3 +109,28 @@ pytest tests/core/test_gdpr_e2e.py
 
 ---
 Demo pronta per presentazione, sviluppo, audit GDPR e test end-to-end.
+
+## Deploy in produzione con Docker Swarm
+
+1. Crea i secrets Swarm:
+   ```bash
+   docker secret create db_url .secrets/db_url
+   docker secret create secret_key .secrets/secret_key
+   docker secret create gdpr_key .secrets/gdpr_key
+   ```
+
+2. Avvia lo stack con repliche:
+   ```bash
+   docker stack deploy -c docker-compose.swarm.yml stakc
+   ```
+
+3. Verifica repliche e servizi:
+   ```bash
+   docker service ls
+   docker service ps stakc_api
+   ```
+
+- API, worker, caddy sono scalabili (replicas > 1).
+- Postgres e Redis restano replica singola (per integrità dati).
+- I secrets sono disponibili in `/run/secrets/` nei container.
+- Per scaling, puoi modificare `replicas` in `docker-compose.swarm.yml`.

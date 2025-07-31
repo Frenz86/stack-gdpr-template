@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - .:/app
+    command: uvicorn core.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    environment:
+      - LOG_LEVEL=DEBUG
+    command: celery -A core.celery worker --loglevel=debug
+
+  scheduler:
+    environment:
+      - LOG_LEVEL=DEBUG
+    command: celery -A core.celery beat --loglevel=debug
+
+# Questa configurazione estende il file principale per lo sviluppo locale:
+# - Abilita hot-reload e debug
+# - Monta la directory locale nel container
+# - Imposta log dettagliati
+# - Puoi aggiungere altri override per test, profiling, ecc.
