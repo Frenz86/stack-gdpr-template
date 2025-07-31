@@ -82,10 +82,14 @@ Trovi esempi concreti nella cartella `examples/`.
 
 ## Frontend
 
+> La procedura di installazione e build del frontend viene eseguita automaticamente dallo script `setup-project.sh` se Node.js/npm sono disponibili. Non è necessario eseguire manualmente questi comandi.
+
 Trovi template React/Next.js, Vanilla HTML, Vue, ecc. nella cartella `frontend_templates/`.
 Ogni template include componenti modulari per privacy, consensi e export dati.
 
+
 Esempio Next.js:
+
 - `components/plugins/gdpr/CookieConsentBanner.tsx`
 - `components/plugins/gdpr/PrivacyDashboard.tsx`
 - `components/plugins/gdpr/DataExportButton.tsx`
@@ -157,4 +161,4 @@ Per domande, personalizzazioni o bug, consulta la documentazione (`docs/`) o apr
 
 ---
 
-*Powered by STAKC GDPR Template v2.0.0*
+Powered by STAKC GDPR Template v2.0.0
