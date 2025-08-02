@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "0.0.0.0:8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
+      - PROJECT_NAME=${PROJECT_NAME:-my-blog}
+      - PROJECT_TEMPLATE=${PROJECT_TEMPLATE:-blog}
+      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+      - ENVIRONMENT=production
+      - CORS_ORIGINS=http://18.171.217.18,http://18.171.217.18:8000
+    volumes:
+      - ./core:/app/core
+      - ./plugins:/app/plugins
+      - ./project_templates:/app/project_templates
+      - gdpr_exports:/app/exports
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - stakc_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_blog_2024_aws}
+      POSTGRES_DB: ${POSTGRES_DB:-stakc_app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  gdpr_exports:
+
+networks:
+  stakc_network:
+    driver: bridge

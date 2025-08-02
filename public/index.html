@@ -1,19 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STAKC GDPR Blog - AWS EC2</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        .btn { padding: 10px 20px; margin: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .btn { 
+            display: inline-block;
+            padding: 12px 24px; 
+            margin: 10px; 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0,255,0,0.2);
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>🛡️ STAKC GDPR Blog</h1>
-    <p>Running on AWS EC2: 18.171.217.18</p>
-    <div>
-        <a href="/health" class="btn">Health Check</a>
-        <a href="/docs" class="btn">API Docs</a>
-        <a href="/api/gdpr/metrics" class="btn">GDPR Metrics</a>
+    <div class="container">
+        <h1>🛡️ STAKC GDPR Blog</h1>
+        <p>Running on AWS EC2: <strong>18.171.217.18</strong></p>
+        <div class="status">
+            <p>✅ Server is running</p>
+        </div>
+        <div>
+            <a href="/health" class="btn">Health Check</a>
+            <a href="/docs" class="btn">API Documentation</a>
+            <a href="/api/gdpr/metrics" class="btn">GDPR Metrics</a>
+            <a href="/redoc" class="btn">ReDoc</a>
+        </div>
+        <br>
+        <p><small>Powered by STAKC Framework</small></p>
     </div>
 </body>
 </html>
