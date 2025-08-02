@@ -240,7 +240,7 @@ docker system prune -f
 
 # Build e start
 echo "🐳 Building and starting Docker services..."
-docker-compose -f docker-compose.ec2.yml up --build -d
+docker compose -f docker-compose.ec2.yml up --build -d
 
 # Wait for startup
 echo "⏳ Waiting for services to start (90s)..."
@@ -272,12 +272,12 @@ fi
 # Show status
 echo ""
 echo "📊 Service status:"
-docker-compose -f docker-compose.ec2.yml ps
+docker compose -f docker-compose.ec2.yml ps
 
 # Show logs se ci sono errori
 echo ""
 echo "📋 Recent logs:"
-docker-compose -f docker-compose.ec2.yml logs --tail=10 api
+docker compose -f docker-compose.ec2.yml logs --tail=10 api
 
 echo ""
 echo "🎉 Deploy completed!"
