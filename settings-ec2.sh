@@ -240,7 +240,7 @@ docker system prune -f
 
 # Build e start
 echo "🐳 Building and starting Docker services..."
-docker-compose -f docker-compose.ec2.yml up --build -d
+docker compose -f docker-compose.ec2.yml up --build -d
 
 # Wait for startup
 echo "⏳ Waiting for services to start (90s)..."
