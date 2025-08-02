@@ -7,6 +7,7 @@ Configurazione centralizzata con supporto per plugin e compliance GDPR.
 
 from pydantic_settings import BaseSettings
 from pydantic import Field, validator, ValidationError
+from pydantic import field_validator
 import logging
 from typing import List, Optional, Dict, Any
 import os
@@ -30,10 +31,22 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(default=False, description="Debug mode")
     
     # ===== PLUGIN SYSTEM =====
+    ENABLED_PLUGINS: List[str] = Field(default=[])
+
     ENABLED_PLUGINS: List[str] = Field(
-        default=["gdpr", "security", "analytics", "audit"], 
+        default=[], 
         description="Lista plugin attivi"
     )
+
+    @field_validator('ENABLED_PLUGINS', mode='before')
+    @classmethod
+    def parse_plugins(cls, v):
+        if isinstance(v, str):
+            if not v or v.strip() == "":
+                return []
+            # Se è una stringa con virgole, splitta
+            return [x.strip() for x in v.split(',') if x.strip()]
+        return v
     PLUGIN_CONFIG_PATH: str = Field(default="config/plugin_configs", description="Path configurazioni plugin")
     
     # ===== DATABASE CONFIGURATION =====
