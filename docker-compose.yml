@@ -22,12 +22,18 @@ services:
       - ./plugins:/app/plugins
       - ./project_templates:/app/project_templates
       - gdpr_exports:/app/exports
-      - audit_logs:/app/logs
+      # 🔧 FIXED: Removed audit_logs volume to avoid conflict with tmpfs
     # 🚨 SECURITY: Read-only filesystem
     read_only: true
     tmpfs:
       - /tmp
-      - /app/logs
+      - /app/logs  # 🔧 FIXED: Keep logs in tmpfs for security
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - stakc_network
+    restart: unless-stopped
 
   # 🐘 PostgreSQL Database
   postgres:
@@ -101,7 +107,8 @@ services:
       - ./core:/app/core
       - ./plugins:/app/plugins
       - gdpr_exports:/app/exports
-      - audit_logs:/app/logs
+      # 🔧 FIXED: Worker doesn't need tmpfs, can use regular volume for logs
+      - worker_logs:/app/logs
     depends_on:
       - postgres
       - redis
@@ -131,6 +138,16 @@ services:
       - stakc_network
     restart: unless-stopped
 
+  # 📧 MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"  # Web interface
+      - "1025:1025"  # SMTP
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     driver: local
@@ -143,7 +160,8 @@ volumes:
   # GDPR Compliance Volumes
   gdpr_exports:
     driver: local
-  audit_logs:
+  # 🔧 FIXED: Separate worker logs volume
+  worker_logs:
     driver: local
 
 networks:
