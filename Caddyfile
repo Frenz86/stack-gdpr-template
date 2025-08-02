@@ -1,25 +1,29 @@
-# Caddyfile Template per stack GDPR-compliant
 {
+    # Inserisci la tua email per i certificati SSL di Let's Encrypt
     email admin@example.com
-    acme_ca https://acme-v02.api.letsencrypt.org/directory
 }
 
-:80, :443 {
+{$DOMAIN}:80, {$DOMAIN}:443 {
     encode gzip
-    log {
-        output file /var/log/caddy/access.log
-    }
+    
+    # Header di sicurezza
     header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        Strict-Transport-Security "max-age=31536000;"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "no-referrer"
-        Permissions-Policy "geolocation=(), microphone=()"
     }
+    
+    # Indirizza tutte le richieste /api/* al backend
     reverse_proxy /api/* api:8000
-    root * /srv/frontend
-    file_server
-    handle_errors {
-        respond "{http.error.status_code} {http.error.status_text}" 500
+    reverse_proxy /docs* api:8000
+    reverse_proxy /openapi.json api:8000
+    reverse_proxy /health api:8000
+    
+    # Serve i file statici dalla cartella 'public'
+    handle {
+        root * /srv/public
+        try_files {path} /index.html
+        file_server
     }
 }

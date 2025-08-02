@@ -1,27 +1,29 @@
 version: '3.8'
 
 services:
+  # 🚀 Backend API (non esposto pubblicamente)
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "0.0.0.0:8000:8000"
+    # Le porte non sono più esposte, Caddy gestisce il traffico
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
       - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
-      - PROJECT_NAME=${PROJECT_NAME:-my-blog}
+      - PROJECT_NAME=${PROJECT_NAME:-STAKC Template}
       - PROJECT_TEMPLATE=${PROJECT_TEMPLATE:-blog}
-      # - ENABLED_PLUGINS=["gdpr","security","analytics","audit"]
-      - ENVIRONMENT=production
-      - CORS_ORIGINS=http://18.171.217.18,http://18.171.217.18:8000
+      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+      - ENVIRONMENT=production # 👈 Impostato per la produzione
+      - CORS_ORIGINS=http://${DOMAIN},https://${DOMAIN}
     volumes:
-      - ./core:/app/core
-      - ./plugins:/app/plugins
-      - ./project_templates:/app/project_templates
+      # In produzione, i volumi del codice non servono, è tutto nell'immagine.
+      # Manteniamo solo i volumi per i dati persistenti.
       - gdpr_exports:/app/exports
-      - ./logs:/app/logs
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/logs
     depends_on:
       - postgres
       - redis
@@ -35,25 +37,31 @@ services:
       retries: 3
       start_period: 40s
 
+  # 🐘 PostgreSQL Database (accessibile solo dall'interno della rete Docker)
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_blog_2024_aws}
-      POSTGRES_DB: ${POSTGRES_DB:-stakc_app}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "127.0.0.1:5432:5432"
+      # 🔒 Sicurezza: La porta è esposta solo sull'host locale dell'istanza EC2, non su Internet.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     networks:
       - stakc_network
     restart: unless-stopped
+    command: >
+      postgres -c log_statement=all -c log_destination=stderr -c logging_collector=on
 
+  # 📦 Redis Cache (accessibile solo dall'interno della rete Docker)
   redis:
     image: redis:7-alpine
     ports:
-      - "127.0.0.1:6379:6379"
+      # 🔒 Sicurezza: Anche Redis è esposto solo localmente.
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
@@ -61,10 +69,73 @@ services:
       - stakc_network
     restart: unless-stopped
 
+  # 🌐 Caddy Reverse Proxy (il nostro punto di ingresso pubblico)
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"   # Porta HTTP
+      - "443:443" # Porta HTTPS
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      # Assicurati che il frontend sia compilato in questa cartella!
+      - ./public:/srv/public:ro
+    environment:
+      - DOMAIN=${DOMAIN}
+      - API_UPSTREAM=api:8000
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
+  # 📊 Celery Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A core.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
+      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+    volumes:
+      - gdpr_exports:/app/exports
+      - worker_logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
+  # ⏰ Celery Beat (Scheduler)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A core.celery beat --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
+      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - stakc_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:
   gdpr_exports:
+  worker_logs:
 
 networks:
   stakc_network:
