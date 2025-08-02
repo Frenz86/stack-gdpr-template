@@ -17,7 +17,7 @@ if [ ! -f ".env" ]; then
 PROJECT_NAME=my-blog
 PROJECT_TEMPLATE=blog
 FRONTEND_TEMPLATE=nextjs_base
-ENABLED_PLUGINS=gdpr,security,analytics,audit
+ENABLED_PLUGINS="gdpr,security,analytics,audit"
 ENVIRONMENT=production
 DOMAIN=18.171.217.18
 API_URL=http://18.171.217.18:8000
@@ -98,7 +98,7 @@ services:
       - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
       - PROJECT_NAME=${PROJECT_NAME:-my-blog}
       - PROJECT_TEMPLATE=${PROJECT_TEMPLATE:-blog}
-      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+      - ENABLED_PLUGINS="gdpr,security,analytics,audit"
       - ENVIRONMENT=production
       - CORS_ORIGINS=http://18.171.217.18,http://18.171.217.18:8000
     volumes:
@@ -240,7 +240,7 @@ docker system prune -f
 
 # Build e start
 echo "🐳 Building and starting Docker services..."
-docker compose -f docker-compose.ec2.yml up --build -d
+docker-compose -f docker-compose.ec2.yml up --build -d
 
 # Wait for startup
 echo "⏳ Waiting for services to start (90s)..."
@@ -272,12 +272,12 @@ fi
 # Show status
 echo ""
 echo "📊 Service status:"
-docker compose -f docker-compose.ec2.yml ps
+docker-compose -f docker-compose.ec2.yml ps
 
 # Show logs se ci sono errori
 echo ""
 echo "📋 Recent logs:"
-docker compose -f docker-compose.ec2.yml logs --tail=10 api
+docker-compose -f docker-compose.ec2.yml logs --tail=10 api
 
 echo ""
 echo "🎉 Deploy completed!"
