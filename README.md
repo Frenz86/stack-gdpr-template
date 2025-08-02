@@ -1,4 +1,6 @@
 # STAKC GDPR Template 🚀
+### Running on AWS EC2: 18.171.217.18
+
 
 Un template modulare, scalabile e GDPR-compliant per qualsiasi progetto (Blog, E-commerce, Document Management, CRM, SaaS, ecc).
 
