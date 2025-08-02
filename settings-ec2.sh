@@ -255,55 +255,55 @@ cat > public/index.html << 'EOF'
 </html>
 EOF
 
-# # Build e start
-# echo "🐳 Starting Docker services..."
-# docker-compose -f docker-compose.ec2.yml up --build -d
+# Build e start
+echo "🐳 Starting Docker services..."
+docker-compose -f docker-compose.ec2.yml up --build -d
 
-# # Wait for startup
-# echo "⏳ Waiting for services (60s)..."
-# sleep 60
+# Wait for startup
+echo "⏳ Waiting for services (60s)..."
+sleep 60
 
-# # Health checks
-# echo "🔍 Running health checks..."
-# echo "Local health check:"
-# curl -f http://localhost:8000/health && echo " ✅" || echo " ❌"
+# Health checks
+echo "🔍 Running health checks..."
+echo "Local health check:"
+curl -f http://localhost:8000/health && echo " ✅" || echo " ❌"
 
-# echo "External health check:"
-# curl -f http://18.171.217.18:8000/health && echo " ✅" || echo " ❌"
+echo "External health check:"
+curl -f http://18.171.217.18:8000/health && echo " ✅" || echo " ❌"
 
-# # Show status
-# echo "📊 Service status:"
-# docker-compose -f docker-compose.ec2.yml ps
+# Show status
+echo "📊 Service status:"
+docker-compose -f docker-compose.ec2.yml ps
 
-# echo ""
-# echo "🎉 Deploy completed!"
-# echo "🔗 Access URLs:"
-# echo "   • Health: http://18.171.217.18:8000/health"
-# echo "   • API Docs: http://18.171.217.18:8000/docs"
-# echo "   • GDPR Metrics: http://18.171.217.18:8000/api/gdpr/metrics"
-# echo "   • Homepage: http://18.171.217.18/"
-# ```
+echo ""
+echo "🎉 Deploy completed!"
+echo "🔗 Access URLs:"
+echo "   • Health: http://18.171.217.18:8000/health"
+echo "   • API Docs: http://18.171.217.18:8000/docs"
+echo "   • GDPR Metrics: http://18.171.217.18:8000/api/gdpr/metrics"
+echo "   • Homepage: http://18.171.217.18/"
+```
 
-# ## 6. Test di Connettività Specifico
-# ```bash
-# #!/bin/bash
-# # test-18.171.217.18.sh
+## 6. Test di Connettività Specifico
+```bash
+#!/bin/bash
+# test-18.171.217.18.sh
 
-# echo "🧪 Testing connectivity to 18.171.217.18"
+echo "🧪 Testing connectivity to 18.171.217.18"
 
-# # Test porte aperte
-# echo "🔌 Port scanning..."
-# nmap -p 80,8000,443 18.171.217.18
+# Test porte aperte
+echo "🔌 Port scanning..."
+nmap -p 80,8000,443 18.171.217.18
 
-# # Test HTTP endpoints
-# echo "🌐 HTTP endpoint tests..."
-# curl -I http://18.171.217.18:8000/health
-# curl -I http://18.171.217.18:80/
-# curl -I http://18.171.217.18/docs
+# Test HTTP endpoints
+echo "🌐 HTTP endpoint tests..."
+curl -I http://18.171.217.18:8000/health
+curl -I http://18.171.217.18:80/
+curl -I http://18.171.217.18/docs
 
-# # Test with verbose output
-# echo "🔍 Detailed health check..."
-# curl -v http://18.171.217.18:8000/health
+# Test with verbose output
+echo "🔍 Detailed health check..."
+curl -v http://18.171.217.18:8000/health
 
-# echo "✅ Tests completed"
-# ```
+echo "✅ Tests completed"
+```
