@@ -272,12 +272,12 @@ fi
 # Show status
 echo ""
 echo "📊 Service status:"
-docker-compose -f docker-compose.ec2.yml ps
+docker compose -f docker-compose.ec2.yml ps
 
 # Show logs se ci sono errori
 echo ""
 echo "📋 Recent logs:"
-docker-compose -f docker-compose.ec2.yml logs --tail=10 api
+docker compose -f docker-compose.ec2.yml logs --tail=10 api
 
 echo ""
 echo "🎉 Deploy completed!"
