@@ -13,7 +13,7 @@ services:
       - GDPR_ENCRYPTION_KEY=${GDPR_ENCRYPTION_KEY}
       - PROJECT_NAME=${PROJECT_NAME:-my-blog}
       - PROJECT_TEMPLATE=${PROJECT_TEMPLATE:-blog}
-      - ENABLED_PLUGINS=${ENABLED_PLUGINS:-gdpr,security,analytics,audit}
+      # - ENABLED_PLUGINS=["gdpr","security","analytics","audit"]
       - ENVIRONMENT=production
       - CORS_ORIGINS=http://18.171.217.18,http://18.171.217.18:8000
     volumes:
