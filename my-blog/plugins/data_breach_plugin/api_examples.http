@@ -1,0 +1,7 @@
+### Notifica data breach
+POST http://localhost:8000/breach/notify
+Content-Type: application/json
+
+{
+  "description": "Accesso non autorizzato rilevato il 2025-07-30. Dati potenzialmente coinvolti: utenti, ordini."
+}

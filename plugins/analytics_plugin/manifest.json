@@ -1,0 +1,10 @@
+{
+  "name": "analytics_plugin",
+  "version": "1.0.0", 
+  "description": "Analytics Plugin for metrics and business intelligence",
+  "author": "STAKC Team",
+  "permissions": ["database"],
+  "dependencies": [],
+  "min_python_version": "3.11.0",
+  "checksum": "sha256:ghi789..."
+}

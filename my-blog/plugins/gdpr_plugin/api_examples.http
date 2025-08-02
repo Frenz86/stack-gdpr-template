@@ -1,0 +1,29 @@
+### Consenso granulare (marketing, analytics, profiling)
+POST http://localhost:8000/gdpr/consent
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "marketing",
+  "accepted": true
+}
+
+### Revoca consenso
+POST http://localhost:8000/gdpr/consent/revoke?user_id=1&type=marketing
+
+### Lista consensi utente
+GET http://localhost:8000/gdpr/consent?user_id=1
+
+### Versione policy privacy/cookie
+GET http://localhost:8000/gdpr/policy/version?policy_type=privacy
+
+### Esempio inserimento nuova versione policy
+# (da backend/admin)
+POST http://localhost:8000/gdpr/policy/version
+Content-Type: application/json
+
+{
+  "policy_type": "privacy",
+  "version": "2.1.0",
+  "url": "https://example.com/privacy-policy"
+}

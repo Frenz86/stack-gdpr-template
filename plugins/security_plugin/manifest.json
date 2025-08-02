@@ -1,0 +1,10 @@
+{
+  "name": "security_plugin", 
+  "version": "1.0.0",
+  "description": "Security Plugin with rate limiting, bot detection, and threat monitoring",
+  "author": "STAKC Team",
+  "permissions": ["database", "network"],
+  "dependencies": [],
+  "min_python_version": "3.11.0",
+  "checksum": "sha256:def456..."
+}

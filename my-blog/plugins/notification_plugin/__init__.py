@@ -1,0 +1,1 @@
+# Notification plugin package init

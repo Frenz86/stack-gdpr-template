@@ -1,0 +1,10 @@
+{
+  "name": "gdpr_plugin",
+  "version": "2.0.0",
+  "description": "GDPR Compliance Plugin with automatic consent management, data export, and audit trail",
+  "author": "STAKC Team",
+  "permissions": ["database", "filesystem"],
+  "dependencies": [],
+  "min_python_version": "3.11.0",
+  "checksum": "sha256:abc123..."
+}

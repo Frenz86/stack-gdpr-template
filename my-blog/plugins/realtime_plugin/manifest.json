@@ -1,0 +1,10 @@
+{
+  "name": "realtime_plugin",
+  "version": "1.0.0",
+  "description": "Plugin per notifiche e dashboard real-time via WebSocket e SSE.",
+  "author": "Stack GDPR Team",
+  "permissions": ["network"],
+  "dependencies": [],
+  "min_python_version": "3.8",
+  "checksum": "sha256:placeholder"
+}
